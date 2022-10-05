@@ -13,6 +13,9 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
+from cart_app.views import _cart
+from cart_app.models import CartItem,Cart
+from urllib.parse import urlparse
 
 # Create your views here.
 def register(request):
@@ -52,9 +55,51 @@ def login_user(request):
         password=request.POST['password']
         user=authenticate(email=email,password=password)
         if user is not None:
+            try:
+                cart=Cart.objects.get(cartid=_cart(request))
+                is_cart_item_exists=CartItem.objects.filter(cart=cart).exists()
+                if is_cart_item_exists:
+                    cart_items=CartItem.objects.filter(cart=cart)
+                    product_variation=[]
+                    for item in cart_items:
+                        variation=item.variation.all()
+                        product_variation.append(list(variation))
+                    cart_item=CartItem.objects.filter(user=user)
+                    ex_var_list=[]
+                    id=[]
+                    for item in cart_item:
+                        existing_vartion=item.variation.all()
+                        ex_var_list.append(list(existing_vartion))
+                        id.append(item.id)
+                    for pr in product_variation:
+                        if pr in ex_var_list:
+                            index=ex_var_list.index(pr)
+                            id1=id[index]
+                            item=CartItem.objects.get(id=id1)
+                            item.quantity=item.quantity+1
+                            item.user=user
+                            item.save()
+                        else:
+                            cart_item=CartItem.objects.filter(cart=cart)
+                            for item in cart_item:
+                                item.user=user 
+                                item.save()
+                            
+            except:
+                pass
             login(request,user)
             messages.success(request,'You are logged in')
-            return redirect('dashboard')
+            url=request.META.get('HTTP_REFERER')
+            try:
+                path=urlparse(url)
+                query1=path.query
+                parms=dict(x.split("=") for x in query1.split('&'))
+                print(parms)
+                if 'next' in parms:
+                    nextpage=parms['next']
+                    return redirect(nextpage)
+            except:
+                return redirect('dashboard')
         else:
             messages.error(request,'Ivalid Credentials')
             return redirect('login')

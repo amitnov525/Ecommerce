@@ -6,8 +6,11 @@ def counter(request):
     if 'admin' in request.path:
         return {}
     try:
-        cart_id=Cart.objects.get(cartid=_cart(request))
-        cart_items=CartItem.objects.filter(cart=cart_id)
+        cart_id=Cart.objects.filter(cartid=_cart(request))
+        if request.user.is_authenticated:
+            cart_items=CartItem.objects.all().filter(user=request.user)
+        else:
+            cart_items=CartItem.objects.all().filter(cart=cart_id[:1])
         for cart_item in cart_items:
             cart_count+=cart_item.quantity
             
