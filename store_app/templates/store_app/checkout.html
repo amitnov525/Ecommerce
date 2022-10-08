@@ -9,7 +9,8 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title mb-4">Billing Address</h4>
-            <form action="">
+            <form action="{% url 'place_order' %}" method="POST">
+                {% csrf_token %}
                 <div class="form-row">
                     <div class="col form-group">
                     <label for="">First Name</label>
@@ -27,21 +28,35 @@
                     </div>
                     <div class="col form-group">
                         <label for="">Phone Number</label>
-                        <input type="text" name="phone_number" class="form-control" required>
+                        <input type="text" name="phone" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col form-group">
+                    <label for="">Address Line 1</label>
+                    <input type="text" name="address_line_1" class="form-control" required>
+                    </div>
+                    <div class="col form-group">
+                        <label for="">Address Line 2</label>
+                        <input type="text" name="address_line_2" class="form-control">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="col form-group">
                     <label for="">City</label>
-                    <input type="email" name="city" class="form-control" required>
+                    <input type="text" name="city" class="form-control" required>
                     </div>
                     <div class="col form-group">
                         <label for="">State</label>
                         <input type="text" name="state" class="form-control" required>
                     </div>
                     <div class="col form-group">
-                        <label for="">Coutry</label>
-                        <input type="text" name="coutry" class="form-control" required>
+                        <label for="">Country</label>
+                        <input type="text" name="country" class="form-control" required>
+                    </div>
+                    <div class="col form-group">
+                        <label for="">PinCode</label>
+                        <input type="text" name="pincode" class="form-control" required>
                     </div>
                 </div>
                 <div class="form-row">
@@ -49,6 +64,18 @@
                         <label for="">Order Note</label>
                         <textarea name="order_note" rows="2" class="form-control"></textarea>
                     </div>
+                    {% if form.errors %}
+                    {% for field in form %}
+                    {% for error in field.errors %}
+                    {{error}}
+                    {% endfor %}
+                    {% endfor %}
+                    {%endif%}
+                    {% if form.non_field_errors%}
+                    {% for error in form.non_field_errors %}
+                    {{error}}
+                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
     
