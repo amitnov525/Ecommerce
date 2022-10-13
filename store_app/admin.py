@@ -1,6 +1,6 @@
 from django.contrib import admin
 from store_app.models import Products
-from store_app.models import Variation
+from store_app.models import Variation,ReviewRating
 
 # Register your models here.
 
@@ -15,3 +15,5 @@ class VariationDisplay(admin.ModelAdmin):
     list_editable=('is_active',)
     list_filter=('product','variation_category','variation_value')
 admin.site.register(Variation,VariationDisplay)
+
+admin.site.register(ReviewRating)

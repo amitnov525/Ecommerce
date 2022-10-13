@@ -1,8 +1,8 @@
-from itertools import product
-from unicodedata import category
 from django.db import models
 from category.models import Category
 from django.urls import reverse
+from accounts.models  import MyUser
+from django.db.models import Avg,Count
 
 # Create your models here.
 
@@ -20,6 +20,19 @@ class Products(models.Model):
 
     def get_url(self):
         return reverse('product_deatil',args=[self.category.slug,self.slug])
+    def get_average(self):
+        reviews=ReviewRating.objects.filter(product=self,status=True).aggregate(average=Avg('rating'))
+        avg=0
+        if reviews['average'] is not None:
+            avg=float(reviews['average'])
+        return avg
+    
+    def count_rating(self):
+        reviews=ReviewRating.objects.filter(product=self,status=True).aggregate(count=Count('id'))
+        count=0
+        if reviews['count'] is not None:
+            count=int(reviews['count'])
+        return count
     def __str__(self):
         return self.product_name
 
@@ -44,6 +57,17 @@ class Variation(models.Model):
 
     def __str__(self):
         return self.variation_value
+
+class ReviewRating(models.Model):
+    product=models.ForeignKey(Products,on_delete=models.CASCADE)
+    user=models.ForeignKey(MyUser,on_delete=models.CASCADE)
+    subject=models.CharField(max_length=50,blank=True)
+    review=models.TextField(max_length=500,blank=True)
+    rating=models.FloatField()
+    ip=models.CharField(max_length=50,blank=True)
+    status=models.BooleanField(default=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
 
 
 
