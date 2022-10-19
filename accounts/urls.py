@@ -15,4 +15,5 @@ urlpatterns = [
     path('my-order',views.myorders,name='my-order'),
     path('edit-profile',views.edit_profile,name='edit-profile'),
     path('order_detail/<int:order_id>/',views.order_detail,name='order_detail'),
+    path('createprofile/<int:id>/',views.createprofile,name='createprofile')
 ]

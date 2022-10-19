@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from django.db import models
 from category.models import Category
 from django.urls import reverse
@@ -68,6 +69,16 @@ class ReviewRating(models.Model):
     status=models.BooleanField(default=True)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
+
+class ProductGallry(models.Model):
+    product=models.ForeignKey(Products,on_delete=models.CASCADE)
+    image=models.ImageField(upload_to='store/products',max_length=None)
+
+    def __str__(self):
+        return self.product.product_name
+    class Meta:
+        verbose_name='productgallery'
+        verbose_name_plural='product gallery'
 
 
 

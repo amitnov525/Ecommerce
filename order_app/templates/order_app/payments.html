@@ -143,6 +143,7 @@
           onApprove: (data, actions) => {
             return actions.order.capture().then(function(orderData) {
               // Successful capture! For dev/demo purposes:
+                alert("Payment Successful !. Please wait while we redirect to conformation Page.");
                 sendData();
                 function sendData(){
                         fetch(url,{

@@ -1,12 +1,13 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from category.models import Category
-from store_app.models import Products,ReviewRating
+from store_app.models import Products,ReviewRating,ProductGallry
 from cart_app.models import CartItem,Cart
 from cart_app.views import _cart
 from store_app.forms import MyForm
 from django.contrib import messages
 from order_app.models import OrderProduct
 from django.core.paginator import EmptyPage,PageNotAnInteger,Paginator
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -45,11 +46,13 @@ def product_detail(request,category_slug,product_slug):
     else:
         orderproduct=None
     reviews=ReviewRating.objects.filter(product_id=single_product.id,status=True)
+    product_gallery=ProductGallry.objects.filter(product_id=single_product.id)
     context={
         'product':single_product,
          'in_cart':in_cart,
          'orderproduct':orderproduct,
-         'reviews':reviews
+         'reviews':reviews,
+         'product_gallery':product_gallery
     }
     return render(request,'store_app/product_detail.html',context)
 
@@ -65,6 +68,7 @@ def search1(request):
         }
     return render(request,'store_app/store.html',context)
 
+@login_required(login_url='login')
 def review_rating(request,product_id):
     url=request.META.get('HTTP_REFERER')
     if request.method=="POST":

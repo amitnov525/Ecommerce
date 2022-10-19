@@ -8,8 +8,10 @@ from store_app.models import Products
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required(login_url='login')
 def payments(request):
     body=json.loads(request.body)
     user=request.user 
@@ -65,6 +67,7 @@ def payments(request):
     }
     return JsonResponse(data)
 
+@login_required(login_url='login')
 def place_order(request,total=0,quantity=0):
     user=request.user
     cart_item=CartItem.objects.filter(user=user)
@@ -116,12 +119,11 @@ def place_order(request,total=0,quantity=0):
             }
             return render(request,'order_app/payments.html',context)
         else:
-            print(form)
-            print("form has errors")
             return redirect('checkout')
     else:
         return redirect('checkout')
 
+@login_required(login_url='login')
 def Order_Complete(request):
     order_number=request.GET.get('order_number')
     transactionID=request.GET.get('payment_id')

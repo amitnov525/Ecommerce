@@ -121,8 +121,9 @@ def activate(request,uidb64,token):
     if user is not None and default_token_generator.check_token(user,token):
         user.is_active=True 
         user.save()
-        messages.success(request,'Congratulations Registration Successfull.')
-        return redirect('login')
+        id1=user.id
+        messages.success(request,'Congratulations Registration Successfull Please Complete Your Profile.')
+        return redirect('createprofile',id1)
     else:
         messages.error(request,'Invalid Activation Link')
         return redirect('register')
@@ -131,7 +132,10 @@ def activate(request,uidb64,token):
 def dashboard(request):
     orders=Order.objects.order_by('-created_at').filter(user_id=request.user.id,is_ordered=True)
     orders_count=orders.count()
-    userprofile=UserProfile.objects.get(user_id=request.user.id)
+    try:
+        userprofile=UserProfile.objects.get(user_id=request.user.id)
+    except UserProfile.DoesNotExist:
+        userprofile=None
     context={
         'orders_count':orders_count,
         'userprofile':userprofile,
@@ -230,6 +234,7 @@ def myorders(request):
 @login_required(login_url='login')
 def edit_profile(request):
     userprofile=get_object_or_404(UserProfile,user=request.user)
+    print(userprofile,'******************')
     if request.method=="POST":
         user_form=UserForm(request.POST,instance=request.user)
         profile_form=UserProfileForm(request.POST,request.FILES,instance=userprofile)
@@ -247,6 +252,26 @@ def edit_profile(request):
         'userprofile':userprofile
     }
     return render(request,'accounts/editprofile.html',context)
+
+def createprofile(request,id):
+    user=get_object_or_404(UserProfile,id=id)
+    if request.method=="POST":
+        profile_form=UserProfileForm(request.POST,request.FILES)
+        
+        if profile_form.is_valid():
+            pf=profile_form.save(commit=False)
+            pf.user_id=user.id
+            pf.save()
+            messages.success(request,'You Profile has Created')
+            return redirect('login')
+    else:
+        profile_form=UserProfileForm()
+    context={
+        'profile_form':profile_form,
+        'user':user
+    }
+    return render(request,'accounts/createprofile.html',context)
+
 
 @login_required(login_url='login')
 def order_detail(request,order_id):
